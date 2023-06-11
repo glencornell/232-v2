@@ -40,6 +40,8 @@ class section232Updater:
     
 if __name__ == "__main__":
     Section232Updater updater
-    updater = downloadZipFile()
-    cleanup()
+    updater.downloadZipFile()
+    updater.extractZipFile()
+    updater.updateDatabase()
+    updater.cleanup()
  
