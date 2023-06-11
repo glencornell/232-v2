@@ -3,9 +3,10 @@ import zipfile
 import csv
 import psycopg2
 
-# comstants
-url = "URL_OF_THE_ZIP_ARCHIVE"
-zipFileName = "data.zip"
+# constants
+url = 'https://232app.azurewebsites.net/data/BIS232Data.zip'
+tempDir = './temp/'
+zipFileName = tempDir + 'BIS232Data.zip'
 
 # Step 1: Download the zip archive
 response = requests.get(url)
@@ -13,10 +14,11 @@ with open(zipFileName, "wb") as zip_file:
     zip_file.write(response.content)
 
 # Step 2: Extract the zip archive
-with zipfile.ZipFile("data.zip", "r") as zip_ref:
-    zip_ref.extractall("extracted_folder")
+with zipfile.ZipFile(tempDir + zipFileName, "r") as zip_ref:
+    zip_ref.extractall(tempDir)
 
 # Step 3: Process each CSV file
+# TODO: replace `file1.csv` with files in zip archive
 csv_files = ["file1.csv", "file2.csv", "file3.csv"]  # Update with the actual file names
 for csv_file in csv_files:
     with open(f"extracted_folder/{csv_file}", "r") as file:
