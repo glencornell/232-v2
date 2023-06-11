@@ -10,7 +10,8 @@ class section232Updater:
         self.url = 'https://232app.azurewebsites.net/data/BIS232Data.zip'
         self.tempDir = './temp/' # TODO: use mkstemp() instead
         self.zipFileName = self.tempDir + 'BIS232Data.zip'
-
+        # TODO: setup connection to database
+ 
     def downloadZipFile(self):
         # Step 1: Download the zip archive
         response = requests.get(self.url)
@@ -29,10 +30,9 @@ class section232Updater:
         with open(tempDir + f"extracted/{csv_file}", "r") as file:
             csv_reader = csv.reader(file)
             next(csv_reader)  # Skip header if present
-            for row in csv_reader:
-                # Step 4: Update records in the database
-                # Parse the row data and execute necessary queries using psycopg2
-                # Example: connection.execute("UPDATE table_name SET ... WHERE ...")
+            # Step 4: Update records in the database
+            # Parse the row data and execute necessary queries using psycopg2
+            # Example: connection.execute("UPDATE table_name SET ... WHERE ...")
 
     def cleanup(self):
         # Clean up - delete the downloaded zip and extracted files if needed
