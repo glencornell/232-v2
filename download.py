@@ -3,7 +3,6 @@ import zipfile
 import csv
 import psycopg2
 
-
 class section232Updater:
     def __init__(self):
         # constants
@@ -21,12 +20,11 @@ class section232Updater:
     def extractZipFile(self):
         # Step 2: Extract the zip archive
         with zipfile.ZipFile(self.zipFileName, "r") as zip_ref:
-            zip_ref.extractall(tempDir + "extracted")
+            zip_ref.extractall(self.tempDir + "extracted")
 
     def updateDatabase(self):
         # Step 3: Process each CSV file
-        # TODO: replace `file1.csv` with files in zip archive
-        csv_file = "file1.csv" 
+        csv_file = "ExclusionRequests.txt" 
         with open(tempDir + f"extracted/{csv_file}", "r") as file:
             csv_reader = csv.reader(file)
             next(csv_reader)  # Skip header if present
@@ -44,4 +42,3 @@ if __name__ == "__main__":
     updater.extractZipFile()
     updater.updateDatabase()
     updater.cleanup()
- 
