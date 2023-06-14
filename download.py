@@ -5,6 +5,12 @@ import psycopg2
 import os
 import shutil
 import sys
+import signal
+
+def sigterm_handler(signal, frame):
+    # save the state here or do whatever you want
+    print('SIGTERM received. exiting')
+    sys.exit(1)
 
 class Section232Updater:
     def __init__(self):
@@ -42,20 +48,27 @@ class Section232Updater:
             zip_ref.extractall(self.extractedDir)
         print("done")
 
-    def connectToDatabase(self):
-        sys.stdout.write("Connecting to the database")
+    def openDatabase(self):
+        sys.stdout.write("Connecting to the database...")
         sys.stdout.flush()
-        conn = psycopg2.connect(database='TODO: database name',
-                                user='TODO: database username',
-                                password='TODO: database password',
-                                host='TODO',
-                                port='TODO')
-        cursor = conn.cursor()
+        self.conn = psycopg2.connect(database='TODO: database name',
+                                     user='TODO: database username',
+                                     password='TODO: database password',
+                                     host='TODO',
+                                     port='TODO')
+        self.cursor = self.conn.cursor()
+        print("done")
+
+    def closeDatabase(self):
+        sys.stdout.write("Closing database connection...")
+        sys.stdout.flush()
+        self.cursor.close()
+        self.conn.close()
         print("done")
 
     def updateDatabase(self):
         csv_file = "ExclusionRequests.txt"
-        sys.stdout.write(f"Processing CSV file {csv_file}")
+        sys.stdout.write(f"Processing CSV file {csv_file}...")
         sys.stdout.flush()
         expected_header = [ 'column1', 'column2', 'column3' ] # TODO: replace with expected columns in cvs_file
         
@@ -86,22 +99,30 @@ class Section232Updater:
                 # If the batch size has been reached, then make a
                 # large commit to the database:
                 if len(rows) == batch_size:
-                    cursor.executemany(query, rows)
-                    conn.commit()
+                    self.cursor.executemany(query, rows)
+                    self.conn.commit()
                     rows = []
                     
             # Commit any remaining rows to the database
             if rows:
-                cursor.executemany(query, rows)
-                conn.commit()
-
-        # Close the connection to the database
-        cursor.close()
-        conn.close()
+                self.cursor.executemany(query, rows)
+                self.conn.commit()
         print("done")
 
 if __name__ == "__main__":
-    up = Section232Updater()
-    up.downloadZipFile()
-    up.extractZipFile()
-    up.updateDatabase()
+    try:
+        # gracefully handle exiting with CTRL-C:
+        signal.signal(signal.SIGTERM, sigterm_handler)
+        
+        up = Section232Updater()
+        up.downloadZipFile()
+        up.extractZipFile()
+        up.openDatabase()
+        up.openDatabase()
+        up.updateDatabase()
+        up.closeDatabase()
+    except KeyboardInterrupt:
+        print("")
+        sys.exit(1)
+    except Exception as e:
+        print("exception caught")
