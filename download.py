@@ -5,12 +5,6 @@ import psycopg2
 import os
 import shutil
 import sys
-import signal
-
-def sigterm_handler(signal, frame):
-    # save the state here or do whatever you want
-    print('SIGTERM received. exiting')
-    sys.exit(1)
 
 class Section232Updater:
     def __init__(self):
@@ -111,13 +105,9 @@ class Section232Updater:
 
 if __name__ == "__main__":
     try:
-        # gracefully handle exiting with CTRL-C:
-        signal.signal(signal.SIGTERM, sigterm_handler)
-        
         up = Section232Updater()
         up.downloadZipFile()
         up.extractZipFile()
-        up.openDatabase()
         up.openDatabase()
         up.updateDatabase()
         up.closeDatabase()
